@@ -1,0 +1,80 @@
+server:
+  port: 9180
+
+spring:
+  application:
+    name: "payment"
+  jpa:
+    open-in-view: false
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=payment&binaryTransfer=true&reWriteBatchedInserts=true&stringtype=unspecified
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  kafka:
+    bootstrap-servers: localhost:19092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      
+    listener:
+      auto-startup: true
+      poll-timeout: 150
+      observation-enabled: true
+      
+payment-service:
+  order-topic-name: order.events
+
+kafka-consumer-config:
+  payment-consumer-group-id: payment-processor-consumer
+  
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+  opentelemetry:
+    resource-attributes:
+      application: ${spring.application.name}
+      cluster: local
+      # Micrometer Metrics configures this attribute with "unknown value".
+      # It should probably be autoconfigured correctly by Spring Boot.
+      "service.name": ${spring.application.name}
+
+  # Traces-specific OpenTelemetry configuration
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces
+
+logging:
+  include-application-name: false
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  level:
+    com:
+      sam:
+        payment: INFO
+
+otel:
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: none
+  logs:
+    exporter: none        

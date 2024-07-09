@@ -1,0 +1,3 @@
+http PUT http://localhost:8083/connectors/outbox-source-connector/config < connector/outbox-source-connector.json
+
+http DELETE http://localhost:8083/connectors/outbox-source-connector
