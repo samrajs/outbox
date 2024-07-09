@@ -2,6 +2,7 @@
 .project
 .settings/
 **/target/**
+infrastructure/volumes
 infrastructure/volumes/**
 infrastructure/.data/**
 .vscode/**
