@@ -122,9 +122,46 @@ services:
      - COLLECTOR_OTLP_ENABLED=true
     networks:
       - ${GLOBAL_NETWORK:-online-portal}
+
+  order:
+    image: "samrajs/order-outbox:latest"
+    container_name: order
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres?currentSchema=order&binaryTransfer=true&reWriteBatchedInserts=true&stringtype=unspecified
+    ports:
+      - "9080:9080"
+    healthcheck:
+      test: "curl --fail --silent localhost:9080/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    extends:
+      file: common-config.yaml
+      service: microservice-base-config
+
+  payment:
+    image: "samrajs/payment-outbox:latest"
+    container_name: payment
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-broker:9092
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    ports:
+      - "9180:9180"
+    healthcheck:
+      test: "curl --fail --silent localhost:9180/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    extends:
+      file: common-config.yaml
+      service: microservice-base-config
+
 volumes:
     postgres: {}      
-
 networks:
   online-portal:
     driver: bridge

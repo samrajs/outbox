@@ -1,0 +1,16 @@
+{
+    "customerId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "price": 1000,
+    "items": [
+      {
+        "productId": "23b5f534-88ed-449e-beb2-4a0469e132d5",
+        "quantity": 1,
+        "price": 1000
+      }
+    ],
+    "address": {
+      "street": "Karl-Marx Str. 1",
+      "postalCode": "54294",
+      "city": "Trier"
+    }
+  }
